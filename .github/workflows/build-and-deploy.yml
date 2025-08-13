@@ -1,4 +1,4 @@
-name: Build Resume
+name: Build and Deploy Resume
 
 on:
   push:
@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -29,10 +29,12 @@ jobs:
           resume export cv.pdf --theme ./node_modules/jsonresume-theme-even/dist
           resume export cv.html --theme ./node_modules/jsonresume-theme-even/dist
 
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: resume
-          path: |
-            cv.pdf
-            cv.html
+      - name: Copy generated files to server via SCP
+        env:
+          SSH_KEY: ${{ secrets.SSH_KEY }}
+          SERVER_HOST: ${{ secrets.SERVER_HOST }}
+          SERVER_USER: ${{ secrets.SERVER_USER }}
+        run: |
+          echo "$SSH_KEY" > key.pem
+          chmod 600 key.pem
+          scp -o StrictHostKeyChecking=no -i key.pem cv.pdf cv.html $SERVER_USER@$SERVER_HOST:/var/www/html/moncv/
