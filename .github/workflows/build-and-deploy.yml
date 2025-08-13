@@ -27,7 +27,7 @@ jobs:
       - name: Build PDF and HTML
         run: |
           resume export cv.pdf --theme ./node_modules/jsonresume-theme-even/dist
-          resume export cv.html --theme ./node_modules/jsonresume-theme-even/dist
+          resume export index.html --theme ./node_modules/jsonresume-theme-even/dist
 
       - name: Copy generated files to server via SCP
         env:
@@ -36,5 +36,6 @@ jobs:
           SERVER_USER: ${{ secrets.SERVER_USER }}
         run: |
           echo "$SSH_KEY" > key.pem
+          ls -all .
           chmod 600 key.pem
-          scp -o StrictHostKeyChecking=no -i key.pem cv.pdf cv.html $SERVER_USER@$SERVER_HOST:/var/www/html/moncv/
+          scp -o StrictHostKeyChecking=no -i key.pem index.html $SERVER_USER@$SERVER_HOST:/var/www/cv/
